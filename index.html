@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>QR INSTANT V1 LIGHT - Universal Direct Content QR Generator &amp; Scanner</title>
+  <meta name="description" content="Instant Universal QR code generator for Text, Link, PDF, Audio, Video, and Image with direct decoding on ANY phone, Google Lens, and standard scanner." />
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- External CSS -->
+  <link rel="stylesheet" href="style.css" />
+  
+  <!-- CDN Libraries: QRCode.js & jsQR -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+</head>
+<body>
+
+  <!-- Ambient Light Orbs -->
+  <div class="bg-mesh">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <a href="#" class="brand-logo" onclick="location.reload(); return false;">
+        <div class="brand-icon-box">
+          <i class="fa-solid fa-qrcode"></i>
+        </div>
+        <div class="brand-text">
+          <h1>QR INSTANT <span class="badge-light">V1 LIGHT</span></h1>
+          <p>Universal Direct Content QR Generator &amp; Scanner</p>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <button class="btn-icon-pill" id="btn-open-scanner" onclick="openScannerModal()">
+          <i class="fa-solid fa-camera"></i>
+          <span>Live Scanner</span>
+        </button>
+        <button class="btn-icon-pill" id="btn-theme-toggle" onclick="toggleTheme()">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="app-main-grid">
+      <!-- Left Panel: Mode Selector & Inputs -->
+      <div class="card-panel">
+        <!-- 6 Switch Tabs -->
+        <div class="nav-tabs-wrapper">
+          <button class="tab-btn active" onclick="switchTab('text')">
+            <i class="fa-solid fa-align-left"></i>
+            <span>Text</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('link')">
+            <i class="fa-solid fa-link"></i>
+            <span>Link</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('pdf')">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>PDF</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('audio')">
+            <i class="fa-solid fa-music"></i>
+            <span>Audio</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('video')">
+            <i class="fa-solid fa-video"></i>
+            <span>Video</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('image')">
+            <i class="fa-solid fa-image"></i>
+            <span>Image</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Text -->
+        <div class="tab-pane active" id="pane-text">
+          <div class="input-label-row">
+            <label><i class="fa-solid fa-pen-nib"></i> Enter Plain Text / Notes</label>
+            <span class="char-badge" id="text-counter">0 chars</span>
+          </div>
+          <textarea class="input-field" id="input-text" placeholder="Type or paste any text, message, or notes..." oninput="handleTextInput()"></textarea>
+        </div>
+
+        <!-- Tab 2: Link -->
+        <div class="tab-pane" id="pane-link">
+          <div class="input-label-row">
+            <label><i class="fa-solid fa-globe"></i> Enter Website / Webpage URL</label>
+          </div>
+          <input type="url" class="input-field" id="input-link" placeholder="https://example.com/mypage" oninput="handleLinkInput()" />
+          <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-icon-pill" style="height: 34px; font-size: 11.5px;" onclick="addUrlPrefix('https://')">+ https://</button>
+            <button class="btn-icon-pill" style="height: 34px; font-size: 11.5px;" onclick="addUrlPrefix('https://www.youtube.com/')">YouTube</button>
+            <button class="btn-icon-pill" style="height: 34px; font-size: 11.5px;" onclick="addUrlPrefix('https://wa.me/')">WhatsApp</button>
+          </div>
+        </div>
+
+        <!-- Tab 3: PDF -->
+        <div class="tab-pane" id="pane-pdf">
+          <div class="input-label-row">
+            <label><i class="fa-solid fa-file-arrow-up"></i> Upload PDF Document</label>
+          </div>
+          <div class="dropzone" id="dropzone-pdf">
+            <input type="file" accept="application/pdf" id="file-pdf" onchange="handleFileUpload(event, 'pdf')" />
+            <div class="dropzone-content">
+              <div class="dropzone-icon"><i class="fa-solid fa-file-pdf"></i></div>
+              <div class="dropzone-title">Click or Drag &amp; Drop PDF File</div>
+              <div class="dropzone-desc">Generates direct QR viewable on ANY phone &amp; Google Lens</div>
+            </div>
+          </div>
+          <div class="upload-progress-box" id="progress-pdf">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;">
+              <span><i class="fa-solid fa-cloud-arrow-up"></i> Generating Universal Direct QR...</span>
+              <span id="percent-pdf">0%</span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="bar-pdf"></div>
+            </div>
+          </div>
+          <div class="file-preview-pill" id="pill-pdf">
+            <div class="file-info">
+              <div class="file-type-badge"><i class="fa-solid fa-file-pdf"></i></div>
+              <div class="file-meta">
+                <span class="file-name" id="name-pdf">document.pdf</span>
+                <span class="file-status-label" id="status-pdf"><i class="fa-solid fa-circle-check"></i> Ready for direct scan</span>
+              </div>
+            </div>
+            <button class="btn-remove-file" onclick="removeFile('pdf')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+
+        <!-- Tab 4: Audio -->
+        <div class="tab-pane" id="pane-audio">
+          <div class="input-label-row">
+            <label><i class="fa-solid fa-headphones"></i> Upload MP3 / Audio Track</label>
+          </div>
+          <div class="dropzone" id="dropzone-audio">
+            <input type="file" accept="audio/*" id="file-audio" onchange="handleFileUpload(event, 'audio')" />
+            <div class="dropzone-content">
+              <div class="dropzone-icon"><i class="fa-solid fa-music"></i></div>
+              <div class="dropzone-title">Select Audio / Voice Note</div>
+              <div class="dropzone-desc">Direct streamable audio QR code playable on any phone</div>
+            </div>
+          </div>
+          <div class="upload-progress-box" id="progress-audio">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;">
+              <span><i class="fa-solid fa-cloud-arrow-up"></i> Generating Universal Direct QR...</span>
+              <span id="percent-audio">0%</span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="bar-audio"></div>
+            </div>
+          </div>
+          <div class="file-preview-pill" id="pill-audio">
+            <div class="file-info">
+              <div class="file-type-badge"><i class="fa-solid fa-music"></i></div>
+              <div class="file-meta">
+                <span class="file-name" id="name-audio">audio.mp3</span>
+                <span class="file-status-label" id="status-audio"><i class="fa-solid fa-circle-check"></i> Ready for direct scan</span>
+              </div>
+            </div>
+            <button class="btn-remove-file" onclick="removeFile('audio')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+
+        <!-- Tab 5: Video -->
+        <div class="tab-pane" id="pane-video">
+          <div class="input-label-row">
+            <label><i class="fa-solid fa-film"></i> Upload Short Video / Clip</label>
+          </div>
+          <div class="dropzone" id="dropzone-video">
+            <input type="file" accept="video/*" id="file-video" onchange="handleFileUpload(event, 'video')" />
+            <div class="dropzone-content">
+              <div class="dropzone-icon"><i class="fa-solid fa-video"></i></div>
+              <div class="dropzone-title">Select MP4 / Video Clip</div>
+              <div class="dropzone-desc">Instant direct video QR playable on scan</div>
+            </div>
+          </div>
+          <div class="upload-progress-box" id="progress-video">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;">
+              <span><i class="fa-solid fa-cloud-arrow-up"></i> Generating Universal Direct QR...</span>
+              <span id="percent-video">0%</span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="bar-video"></div>
+            </div>
+          </div>
+          <div class="file-preview-pill" id="pill-video">
+            <div class="file-info">
+              <div class="file-type-badge"><i class="fa-solid fa-video"></i></div>
+              <div class="file-meta">
+                <span class="file-name" id="name-video">video.mp4</span>
+                <span class="file-status-label" id="status-video"><i class="fa-solid fa-circle-check"></i> Ready for direct scan</span>
+              </div>
+            </div>
+            <button class="btn-remove-file" onclick="removeFile('video')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+
+        <!-- Tab 6: Image -->
+        <div class="tab-pane" id="pane-image">
+          <div class="input-label-row">
+            <label><i class="fa-solid fa-image"></i> Upload Image / Photo</label>
+          </div>
+          <div class="dropzone" id="dropzone-image">
+            <input type="file" accept="image/*" id="file-image" onchange="handleFileUpload(event, 'image')" />
+            <div class="dropzone-content">
+              <div class="dropzone-icon"><i class="fa-solid fa-image"></i></div>
+              <div class="dropzone-title">Upload JPG, PNG, WEBP, or GIF</div>
+              <div class="dropzone-desc">Generates direct image QR viewable immediately</div>
+            </div>
+          </div>
+          <div class="upload-progress-box" id="progress-image">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;">
+              <span><i class="fa-solid fa-cloud-arrow-up"></i> Generating Universal Direct QR...</span>
+              <span id="percent-image">0%</span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="bar-image"></div>
+            </div>
+          </div>
+          <div class="file-preview-pill" id="pill-image">
+            <div class="file-info">
+              <div class="file-type-badge"><i class="fa-solid fa-image"></i></div>
+              <div class="file-meta">
+                <span class="file-name" id="name-image">photo.jpg</span>
+                <span class="file-status-label" id="status-image"><i class="fa-solid fa-circle-check"></i> Ready for direct scan</span>
+              </div>
+            </div>
+            <button class="btn-remove-file" onclick="removeFile('image')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+
+        <!-- Universal Scanner Compatibility Badge -->
+        <div class="universal-banner">
+          <div>
+            <i class="fa-solid fa-shield-halved"></i>
+            <strong>Universal Scanner Mode:</strong> Any phone/Google Lens opens content directly.
+          </div>
+          <span style="font-weight: 800; color: var(--accent-emerald);">100% ONLINE DIRECT</span>
+        </div>
+
+        <!-- Options Grid -->
+        <div class="options-grid">
+          <div class="option-group">
+            <label>QR Foreground</label>
+            <div class="color-picker-wrapper">
+              <input type="color" id="qr-color-dark" value="#0f172a" onchange="updateQrCode()" />
+              <span style="font-size: 11px; font-weight: 600;" id="label-dark">#0F172A</span>
+            </div>
+          </div>
+
+          <div class="option-group">
+            <label>QR Background</label>
+            <div class="color-picker-wrapper">
+              <input type="color" id="qr-color-light" value="#ffffff" onchange="updateQrCode()" />
+              <span style="font-size: 11px; font-weight: 600;" id="label-light">#FFFFFF</span>
+            </div>
+          </div>
+
+          <div class="option-group">
+            <label>Correction Level</label>
+            <select class="select-custom" id="qr-ecc" onchange="updateQrCode()">
+              <option value="L">Low (7%)</option>
+              <option value="M" selected="selected">Medium (15%)</option>
+              <option value="Q">Quartile (25%)</option>
+              <option value="H">High (30%)</option>
+            </select>
+          </div>
+
+          <div class="option-group">
+            <label>Resolution</label>
+            <select class="select-custom" id="qr-size" onchange="updateQrCode()">
+              <option value="200">200 x 200</option>
+              <option value="256" selected="selected">256 x 256</option>
+              <option value="512">512 x 512 HD</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Live QR Preview & Instant Actions -->
+      <div class="card-panel qr-result-card">
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;">
+            <i class="fa-solid fa-bolt" style="color: var(--accent-amber); margin-right: 6px;"></i> Instant Live QR
+          </h2>
+          <span class="qr-badge-type" id="current-type-badge">
+            <i class="fa-solid fa-align-left"></i> TEXT MODE
+          </span>
+        </div>
+
+        <div class="qr-preview-wrapper" id="qr-wrapper">
+          <div id="qrcode-container"></div>
+          <div class="qr-url-chip" id="qr-payload-chip" title="Direct Encoded Payload">
+            Direct Payload Preview
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-muted); text-align: center; margin-top: 8px;">
+            <i class="fa-solid fa-mobile-screen"></i> Scan with ANY Mobile Camera, Google Lens or Scanner
+          </p>
+        </div>
+
+        <!-- Download & Test Actions -->
+        <div class="download-actions-grid">
+          <button class="btn-action btn-primary" onclick="triggerDownload(event)">
+            <i class="fa-solid fa-download"></i>
+            <span>Download High-Res QR (PNG)</span>
+          </button>
+          <button class="btn-action btn-secondary" onclick="previewCurrentPayload()">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span>Open / Test Link</span>
+          </button>
+          <button class="btn-action btn-secondary" onclick="copyDirectLink()">
+            <i class="fa-solid fa-copy"></i>
+            <span>Copy Direct Link</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Drawer (Browser Local Storage) -->
+    <div class="history-drawer-card">
+      <div class="history-header">
+        <h3><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-blue);"></i> Recent Instant QR Storage (No Signup Required)</h3>
+        <button class="btn-icon-pill" style="height: 32px; font-size: 12px;" onclick="clearHistory()">
+          <i class="fa-solid fa-trash-can"></i> Clear History
+        </button>
+      </div>
+      <div class="history-list" id="history-list-box">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECT CONTENT VIEWER MODAL -->
+  <div class="modal-backdrop" id="content-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="brand-icon-box" style="width: 38px; height: 38px; font-size: 18px;">
+            <i class="fa-solid fa-folder-open" id="modal-type-icon"></i>
+          </div>
+          <div>
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 800;" id="modal-title">Decoded Content</h3>
+            <span class="modal-badge" id="modal-badge-label">Direct Content</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeContentModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="viewer-box" id="modal-viewer-body">
+        <!-- Dynamic Player/Viewer Content -->
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+        <button class="btn-icon-pill" id="btn-modal-action" onclick="performModalAction()">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Full
+        </button>
+        <button class="btn-icon-pill" onclick="copyModalContent()">
+          <i class="fa-solid fa-copy"></i> Copy Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE SCANNER MODAL -->
+  <div class="modal-backdrop" id="scanner-modal">
+    <div class="modal-card" style="max-width: 540px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="brand-icon-box" style="width: 38px; height: 38px; font-size: 18px;">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <div>
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 800;">Scan QR Code</h3>
+            <span class="modal-badge">Live Camera &amp; Image Scanner</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeScannerModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="scanner-container">
+        <video id="scanner-video" playsinline="playsinline"></video>
+        <div class="scanner-laser-beam"></div>
+        <div class="scanner-crosshair"></div>
+      </div>
+
+      <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-action btn-primary" style="flex: 1;" onclick="startCamera()">
+            <i class="fa-solid fa-play"></i> Start Camera
+          </button>
+          <button class="btn-action btn-secondary" style="flex: 1;" onclick="stopCamera()">
+            <i class="fa-solid fa-stop"></i> Stop
+          </button>
+        </div>
+
+        <div class="dropzone" style="padding: 16px; border-radius: 14px;">
+          <input type="file" accept="image/*" onchange="scanFromImageFile(event)" />
+          <div class="dropzone-content" style="flex-direction: row; gap: 10px;">
+            <i class="fa-solid fa-image" style="color: var(--accent-blue); font-size: 20px;"></i>
+            <span style="font-size: 13px; font-weight: 700;">Or Upload QR Image File to Decode</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Element -->
+  <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i> <span id="toast-msg">Success</span></div>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>
